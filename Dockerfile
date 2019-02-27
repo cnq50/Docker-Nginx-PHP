@@ -76,7 +76,7 @@ RUN /usr/local/php/bin/pecl install mongodb-1.5.3 \
 COPY ./start.sh /start.sh
 RUN chmod +x /start.sh
 
-CMD ["./start.sh"]
+ENTRYPOINT ["/bin/bash", "/start.sh"]
 
 
 

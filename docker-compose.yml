@@ -1,10 +1,46 @@
-version: '3'
-
+version: "3"
 services:
-    nginx:
-        image: cnq50/php3:7.2.4-nginx
-        volumes:
-         - ./site:/site
-         - ./config/:/etc/nginx/conf.d/
-        ports:
-           - 9080:80
+
+  uc_server:
+    image: registry.cn-qingdao.aliyuncs.com/nobook/nobook_uc_service:latest
+    ports:
+      - 8001:80
+    deploy:
+      update_config:
+        parallelism: 1
+        failure_action: pause
+        delay: 10s
+        order: top-first
+      restart_policy:
+        condition: on-failure
+        delay: 10
+
+    site_server:
+      image: registry.cn-qingdao.aliyuncs.com/nobook/nobook_site_service:latest
+      ports:
+        - 8002:80
+      deploy:
+        update_config:
+          parallelism: 1
+          failure_action: pause
+          delay: 10s
+          order: top-first
+        restart_policy:
+          condition: on-failure
+          delay: 10
+
+
+    visualizer:
+      image: dockersamples/visualizer:stable
+      ports:
+        - "8080:8080"
+      stop_grace_period: 1m30s
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+      deploy:
+        placement:
+          constraints: [node.role == manager]
+
+
+networks:
+  overlay:
